@@ -18,7 +18,7 @@ function MaterialCard({ m, onEdit, onDelete }) {
       <div className="flex justify-between items-start">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="font-medium text-gray-800 truncate">{m.name}</div>
+            <div className="font-medium text-gray-800">{m.name}</div>
             {isWire && m.gauge && (
               <span className="shrink-0 text-xs bg-amber-100 text-amber-700 font-semibold px-2 py-0.5 rounded-full">
                 GA {m.gauge}
