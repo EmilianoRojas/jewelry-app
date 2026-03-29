@@ -39,38 +39,38 @@ export default function Dashboard() {
     }
   }
 
-  if (loading) return <div className="p-6 text-center text-gray-400 py-16">Loading...</div>
+  if (loading) return <div className="p-6 text-center text-gray-400 py-16">Cargando...</div>
 
   return (
     <div className="p-4 space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-gray-800">Studio Overview</h1>
-        <p className="text-sm text-gray-400 mt-0.5">Your jewelry at a glance</p>
+        <h1 className="text-xl font-bold text-gray-800">Resumen</h1>
+        <p className="text-sm text-gray-400 mt-0.5">Tu joyería de un vistazo</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-rose-50 rounded-2xl p-4">
           <div className="text-3xl font-bold text-rose-600">{stats.materials}</div>
-          <div className="text-xs text-rose-400 mt-1">Materials in stock</div>
+          <div className="text-xs text-rose-400 mt-1">Materiales en stock</div>
         </div>
         <div className="bg-amber-50 rounded-2xl p-4">
           <div className="text-3xl font-bold text-amber-600">{stats.designs}</div>
-          <div className="text-xs text-amber-400 mt-1">Designs created</div>
+          <div className="text-xs text-amber-400 mt-1">Diseños creados</div>
         </div>
       </div>
 
       {/* Low stock alerts */}
       {stats.lowStock.length > 0 && (
         <div>
-          <h2 className="text-sm font-semibold text-gray-700 mb-2">⚠️ Low Stock</h2>
+          <h2 className="text-sm font-semibold text-gray-700 mb-2">⚠️ Stock bajo</h2>
           <div className="space-y-2">
             {stats.lowStock.map(m => (
               <div key={m.id}
                 className="bg-orange-50 border border-orange-100 rounded-xl px-4 py-3 flex justify-between items-center">
                 <span className="text-sm font-medium text-gray-700">{m.name}</span>
                 <span className="text-xs text-orange-500 font-medium">
-                  {m.stock_quantity} {m.unit} left
+                  {m.stock_quantity} {m.unit} restantes
                 </span>
               </div>
             ))}
@@ -82,8 +82,8 @@ export default function Dashboard() {
       {recentDesigns.length > 0 && (
         <div>
           <div className="flex justify-between items-center mb-2">
-            <h2 className="text-sm font-semibold text-gray-700">Recent Designs</h2>
-            <Link to="/designs" className="text-xs text-rose-500">See all →</Link>
+            <h2 className="text-sm font-semibold text-gray-700">Diseños recientes</h2>
+            <Link to="/designs" className="text-xs text-rose-500">Ver todos →</Link>
           </div>
           <div className="space-y-2">
             {recentDesigns.map(d => {
@@ -105,7 +105,7 @@ export default function Dashboard() {
                     </div>
                     {margin != null && (
                       <div className={`text-xs ${parseFloat(margin) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                        {margin}% margin
+                        {margin}% margen
                       </div>
                     )}
                   </div>
@@ -119,8 +119,8 @@ export default function Dashboard() {
       {stats.materials === 0 && stats.designs === 0 && (
         <div className="text-center py-8 text-gray-400">
           <div className="text-4xl mb-3">✨</div>
-          <p className="text-sm font-medium">Welcome to your studio!</p>
-          <p className="text-xs mt-1">Start by adding materials to your stock.</p>
+          <p className="text-sm font-medium">¡Bienvenida a tu estudio!</p>
+          <p className="text-xs mt-1">Empieza agregando materiales a tu stock.</p>
         </div>
       )}
     </div>

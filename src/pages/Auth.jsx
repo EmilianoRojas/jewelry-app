@@ -17,7 +17,7 @@ export default function Auth() {
       const { error } = await signIn(email, password)
       if (error) throw error
     } catch (err) {
-      setError('Wrong username or password')
+      setError('Usuario o contraseña incorrectos')
     } finally {
       setLoading(false)
     }
@@ -29,7 +29,7 @@ export default function Auth() {
         <div className="text-center mb-8">
           <div className="text-5xl mb-2">💍</div>
           <h1 className="text-2xl font-bold text-rose-800">Dreams Design</h1>
-          <p className="text-rose-400 text-sm mt-1">Track materials & costs</p>
+          <p className="text-rose-400 text-sm mt-1">Gestiona materiales y costos</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm p-6">
@@ -39,7 +39,7 @@ export default function Auth() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
               <input
                 type="text"
                 value={username}
@@ -51,7 +51,7 @@ export default function Auth() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
               <input
                 type="password"
                 value={password}
@@ -66,7 +66,7 @@ export default function Auth() {
               disabled={loading}
               className="w-full bg-rose-500 text-white rounded-xl py-3 font-medium text-sm hover:bg-rose-600 disabled:opacity-50 transition-colors"
             >
-              {loading ? 'Loading...' : 'Sign In'}
+              {loading ? 'Cargando...' : 'Entrar'}
             </button>
           </form>
         </div>

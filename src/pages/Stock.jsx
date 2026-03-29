@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import Modal from '../components/Modal'
 
-const TYPES = ['wire', 'bead', 'clasp', 'chain', 'finding', 'other']
-const UNITS = ['pieces', 'meters', 'cm', 'grams', 'mm']
+const TYPES = ['alambre', 'cuenta', 'broche', 'cadena', 'componente', 'otro']
+const UNITS = ['piezas', 'metros', 'cm', 'gramos', 'mm']
 
-const emptyForm = { name: '', type: 'bead', unit: 'pieces', cost_per_unit: '', stock_quantity: '' }
+const emptyForm = { name: '', type: 'cuenta', unit: 'piezas', cost_per_unit: '', stock_quantity: '' }
 
 export default function Stock() {
   const [materials, setMaterials] = useState([])
@@ -15,7 +15,7 @@ export default function Stock() {
   const [editing, setEditing] = useState(null)
   const [saving, setSaving] = useState(false)
   const [search, setSearch] = useState('')
-  const [filterType, setFilterType] = useState('all')
+  const [filterType, setFilterType] = useState('todos')
 
   useEffect(() => { fetchMaterials() }, [])
 
@@ -65,14 +65,14 @@ export default function Stock() {
   }
 
   async function handleDelete(id) {
-    if (!confirm('Delete this material? It will also be removed from any designs using it.')) return
+    if (!confirm('¿Eliminar este material? También se quitará de los diseños que lo usen.')) return
     await supabase.from('materials').delete().eq('id', id)
     fetchMaterials()
   }
 
   const filtered = materials.filter(m => {
     const matchSearch = m.name.toLowerCase().includes(search.toLowerCase())
-    const matchType = filterType === 'all' || m.type === filterType
+    const matchType = filterType === 'todos' || m.type === filterType
     return matchSearch && matchType
   })
 
@@ -82,20 +82,20 @@ export default function Stock() {
         <h1 className="text-xl font-bold text-gray-800">Stock</h1>
         <button onClick={openAdd}
           className="bg-rose-500 text-white rounded-xl px-4 py-2 text-sm font-medium">
-          + Add
+          + Agregar
         </button>
       </div>
 
       <input
         type="text"
-        placeholder="Search materials..."
+        placeholder="Buscar materiales..."
         value={search}
         onChange={e => setSearch(e.target.value)}
         className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-rose-200"
       />
 
       <div className="flex gap-2 overflow-x-auto pb-2 mb-4 scrollbar-hide">
-        {['all', ...TYPES].map(t => (
+        {['todos', ...TYPES].map(t => (
           <button key={t}
             onClick={() => setFilterType(t)}
             className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium capitalize transition-colors ${
@@ -107,12 +107,12 @@ export default function Stock() {
       </div>
 
       {loading ? (
-        <div className="text-center text-gray-400 py-16">Loading...</div>
+        <div className="text-center text-gray-400 py-16">Cargando...</div>
       ) : filtered.length === 0 ? (
         <div className="text-center text-gray-400 py-16">
           <div className="text-4xl mb-2">🧵</div>
           <p className="text-sm">
-            {search || filterType !== 'all' ? 'No materials match your filter.' : 'No materials yet. Add your first one!'}
+            {search || filterType !== 'todos' ? 'No hay materiales con ese filtro.' : '¡Aún no hay materiales. Agrega el primero!'}
           </p>
         </div>
       ) : (
@@ -136,11 +136,11 @@ export default function Stock() {
               <div className="flex gap-2 mt-3">
                 <button onClick={() => openEdit(m)}
                   className="flex-1 text-xs text-rose-500 border border-rose-200 rounded-lg py-1.5 hover:bg-rose-50 transition-colors">
-                  Edit
+                  Editar
                 </button>
                 <button onClick={() => handleDelete(m.id)}
                   className="flex-1 text-xs text-gray-400 border border-gray-200 rounded-lg py-1.5 hover:bg-gray-50 transition-colors">
-                  Delete
+                  Eliminar
                 </button>
               </div>
             </div>
@@ -148,27 +148,27 @@ export default function Stock() {
         </div>
       )}
 
-      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={editing ? 'Edit Material' : 'New Material'}>
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={editing ? 'Editar material' : 'Nuevo material'}>
         <div className="space-y-4">
           <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1">Name *</label>
+            <label className="text-xs font-medium text-gray-600 block mb-1">Nombre *</label>
             <input
               value={form.name}
               onChange={e => setForm({ ...form, name: e.target.value })}
               className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200"
-              placeholder="e.g. Gold wire 0.4mm"
+              placeholder="Ej: Hilo dorado 0.4mm"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1">Type</label>
+              <label className="text-xs font-medium text-gray-600 block mb-1">Tipo</label>
               <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}
                 className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 bg-white">
                 {TYPES.map(t => <option key={t} value={t} className="capitalize">{t}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1">Unit</label>
+              <label className="text-xs font-medium text-gray-600 block mb-1">Unidad</label>
               <select value={form.unit} onChange={e => setForm({ ...form, unit: e.target.value })}
                 className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 bg-white">
                 {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
@@ -177,7 +177,7 @@ export default function Stock() {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1">Cost per {form.unit} (€)</label>
+              <label className="text-xs font-medium text-gray-600 block mb-1">Costo por {form.unit} (€)</label>
               <input
                 type="number"
                 step="0.0001"
@@ -189,7 +189,7 @@ export default function Stock() {
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1">Stock qty</label>
+              <label className="text-xs font-medium text-gray-600 block mb-1">Cantidad</label>
               <input
                 type="number"
                 step="0.01"
@@ -205,7 +205,7 @@ export default function Stock() {
             onClick={handleSave}
             disabled={saving || !form.name.trim()}
             className="w-full bg-rose-500 text-white rounded-xl py-3 font-medium text-sm hover:bg-rose-600 disabled:opacity-50 transition-colors">
-            {saving ? 'Saving...' : editing ? 'Save Changes' : 'Add Material'}
+            {saving ? 'Guardando...' : editing ? 'Guardar cambios' : 'Agregar material'}
           </button>
         </div>
       </Modal>

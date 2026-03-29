@@ -12,7 +12,7 @@ export default function Layout({ children }) {
           <span className="font-bold text-gray-800 text-sm">Dreams Design</span>
         </div>
         <button onClick={signOut} className="text-xs text-gray-400 hover:text-gray-600">
-          Sign out
+          Salir
         </button>
       </header>
 
