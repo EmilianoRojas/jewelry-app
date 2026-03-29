@@ -2,30 +2,22 @@ import { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 
 export default function Auth() {
-  const [isLogin, setIsLogin] = useState(true)
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
-  const { signIn, signUp } = useAuth()
+  const { signIn } = useAuth()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
-    setMessage('')
     setLoading(true)
     try {
-      if (isLogin) {
-        const { error } = await signIn(email, password)
-        if (error) throw error
-      } else {
-        const { error } = await signUp(email, password)
-        if (error) throw error
-        setMessage('Check your email to confirm your account!')
-      }
+      const email = `${username.trim().toLowerCase()}@dreamsdesign.com`
+      const { error } = await signIn(email, password)
+      if (error) throw error
     } catch (err) {
-      setError(err.message)
+      setError('Wrong username or password')
     } finally {
       setLoading(false)
     }
@@ -41,27 +33,21 @@ export default function Auth() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">
-            {isLogin ? 'Sign In' : 'Create Account'}
-          </h2>
-
           {error && (
             <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg mb-4">{error}</div>
-          )}
-          {message && (
-            <div className="bg-green-50 text-green-600 text-sm p-3 rounded-lg mb-4">{message}</div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
               <input
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
+                type="text"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
                 required
+                autoCapitalize="none"
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300"
-                placeholder="your@email.com"
+                placeholder="olguita"
               />
             </div>
             <div>
@@ -80,16 +66,9 @@ export default function Auth() {
               disabled={loading}
               className="w-full bg-rose-500 text-white rounded-xl py-3 font-medium text-sm hover:bg-rose-600 disabled:opacity-50 transition-colors"
             >
-              {loading ? 'Loading...' : isLogin ? 'Sign In' : 'Create Account'}
+              {loading ? 'Loading...' : 'Sign In'}
             </button>
           </form>
-
-          <button
-            onClick={() => { setIsLogin(!isLogin); setError(''); setMessage('') }}
-            className="w-full text-center text-sm text-rose-500 mt-4 hover:underline"
-          >
-            {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
-          </button>
         </div>
       </div>
     </div>
