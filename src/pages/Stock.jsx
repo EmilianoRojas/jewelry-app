@@ -6,7 +6,7 @@ const TYPES = ['alambre', 'cuenta', 'broche', 'cadena', 'componente', 'otro']
 const UNITS = ['piezas', 'metros', 'cm', 'gramos', 'mm']
 const GAUGES = [12, 14, 16, 18, 20, 22, 24, 26, 28]
 
-const emptyForm = { name: '', type: 'cuenta', unit: 'piezas', cost_per_unit: '', stock_quantity: '', gauge: '' }
+const emptyForm = { name: '', type: 'cuenta', unit: 'piezas', cost_per_unit: '', stock_quantity: '', gauge: '', size: '', size_unit: 'mm' }
 
 function MaterialCard({ m, onEdit, onDelete }) {
   const isWire = m.type === 'alambre'
@@ -17,15 +17,20 @@ function MaterialCard({ m, onEdit, onDelete }) {
     <div className="bg-white border border-gray-100 rounded-xl p-4">
       <div className="flex justify-between items-start">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <div className="font-medium text-gray-800">{m.name}</div>
+          <div className="font-medium text-gray-800">{m.name}</div>
+          <div className="flex items-center gap-2 flex-wrap mt-1">
+            <span className="text-xs text-gray-400 capitalize">{m.type} · {m.unit}</span>
             {isWire && m.gauge && (
-              <span className="shrink-0 text-xs bg-amber-100 text-amber-700 font-semibold px-2 py-0.5 rounded-full">
+              <span className="text-xs bg-amber-100 text-amber-700 font-semibold px-2 py-0.5 rounded-full">
                 GA {m.gauge}
               </span>
             )}
+            {m.size && (
+              <span className="text-xs bg-blue-100 text-blue-700 font-semibold px-2 py-0.5 rounded-full">
+                {m.size % 1 === 0 ? m.size : m.size}{m.size_unit ?? 'mm'}
+              </span>
+            )}
           </div>
-          <div className="text-xs text-gray-400 capitalize mt-0.5">{m.type} · {m.unit}</div>
         </div>
         <div className="text-right ml-3 shrink-0">
           <div className="text-sm font-semibold text-gray-800">
@@ -86,7 +91,9 @@ export default function Stock() {
       unit: m.unit,
       cost_per_unit: m.cost_per_unit,
       stock_quantity: m.stock_quantity,
-      gauge: m.gauge ?? ''
+      gauge: m.gauge ?? '',
+      size: m.size ?? '',
+      size_unit: m.size_unit ?? 'mm'
     })
     setShowModal(true)
   }
@@ -101,6 +108,8 @@ export default function Stock() {
       cost_per_unit: parseFloat(form.cost_per_unit) || 0,
       stock_quantity: parseFloat(form.stock_quantity) || 0,
       gauge: form.type === 'alambre' && form.gauge ? parseInt(form.gauge) : null,
+      size: form.size ? parseFloat(form.size) : null,
+      size_unit: form.size ? (form.size_unit || 'mm') : null,
       updated_at: new Date().toISOString()
     }
     if (editing) {
@@ -222,6 +231,33 @@ export default function Stock() {
               </div>
             </div>
           )}
+
+          {/* Tamaño — opcional para todos los tipos */}
+          <div>
+            <label className="text-xs font-medium text-gray-600 block mb-1">Tamaño (opcional)</label>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                value={form.size}
+                onChange={e => setForm({ ...form, size: e.target.value })}
+                placeholder="Ej: 5"
+                className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200"
+              />
+              <div className="flex border border-gray-200 rounded-xl overflow-hidden text-sm">
+                {['mm', 'cm'].map(u => (
+                  <button key={u} type="button"
+                    onClick={() => setForm({ ...form, size_unit: u })}
+                    className={`px-4 py-2.5 font-medium transition-colors ${
+                      form.size_unit === u ? 'bg-rose-500 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'
+                    }`}>
+                    {u}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
