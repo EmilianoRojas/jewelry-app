@@ -36,7 +36,7 @@ export default function Auth() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="text-5xl mb-2">💍</div>
-          <h1 className="text-2xl font-bold text-rose-800">Jewelry Studio</h1>
+          <h1 className="text-2xl font-bold text-rose-800">Dreams Design</h1>
           <p className="text-rose-400 text-sm mt-1">Track materials & costs</p>
         </div>
 

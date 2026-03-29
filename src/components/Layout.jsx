@@ -9,7 +9,7 @@ export default function Layout({ children }) {
       <header className="bg-white border-b border-gray-100 px-4 py-3 flex justify-between items-center sticky top-0 z-10">
         <div className="flex items-center gap-2">
           <span className="text-xl">💍</span>
-          <span className="font-bold text-gray-800 text-sm">Jewelry Studio</span>
+          <span className="font-bold text-gray-800 text-sm">Dreams Design</span>
         </div>
         <button onClick={signOut} className="text-xs text-gray-400 hover:text-gray-600">
           Sign out
