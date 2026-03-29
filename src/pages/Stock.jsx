@@ -4,8 +4,55 @@ import Modal from '../components/Modal'
 
 const TYPES = ['alambre', 'cuenta', 'broche', 'cadena', 'componente', 'otro']
 const UNITS = ['piezas', 'metros', 'cm', 'gramos', 'mm']
+const GAUGES = [12, 14, 16, 18, 20, 22, 24, 26, 28]
 
-const emptyForm = { name: '', type: 'cuenta', unit: 'piezas', cost_per_unit: '', stock_quantity: '' }
+const emptyForm = { name: '', type: 'cuenta', unit: 'piezas', cost_per_unit: '', stock_quantity: '', gauge: '' }
+
+function MaterialCard({ m, onEdit, onDelete }) {
+  const isWire = m.type === 'alambre'
+  const isCm = m.unit === 'cm'
+  const costPerM = isCm && m.cost_per_unit ? (m.cost_per_unit * 100).toFixed(4) : null
+
+  return (
+    <div className="bg-white border border-gray-100 rounded-xl p-4">
+      <div className="flex justify-between items-start">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="font-medium text-gray-800 truncate">{m.name}</div>
+            {isWire && m.gauge && (
+              <span className="shrink-0 text-xs bg-amber-100 text-amber-700 font-semibold px-2 py-0.5 rounded-full">
+                GA {m.gauge}
+              </span>
+            )}
+          </div>
+          <div className="text-xs text-gray-400 capitalize mt-0.5">{m.type} · {m.unit}</div>
+        </div>
+        <div className="text-right ml-3 shrink-0">
+          <div className="text-sm font-semibold text-gray-800">
+            €{parseFloat(m.cost_per_unit).toFixed(4)}
+            <span className="text-gray-400 font-normal">/{m.unit}</span>
+          </div>
+          {costPerM && (
+            <div className="text-xs text-rose-400">€{costPerM}/metro</div>
+          )}
+          <div className={`text-xs mt-0.5 font-medium ${parseFloat(m.stock_quantity) < 5 ? 'text-orange-500' : 'text-green-500'}`}>
+            {m.stock_quantity} {m.unit}
+          </div>
+        </div>
+      </div>
+      <div className="flex gap-2 mt-3">
+        <button onClick={() => onEdit(m)}
+          className="flex-1 text-xs text-rose-500 border border-rose-200 rounded-lg py-1.5 hover:bg-rose-50 transition-colors">
+          Editar
+        </button>
+        <button onClick={() => onDelete(m.id)}
+          className="flex-1 text-xs text-gray-400 border border-gray-200 rounded-lg py-1.5 hover:bg-gray-50 transition-colors">
+          Eliminar
+        </button>
+      </div>
+    </div>
+  )
+}
 
 export default function Stock() {
   const [materials, setMaterials] = useState([])
@@ -38,7 +85,8 @@ export default function Stock() {
       type: m.type,
       unit: m.unit,
       cost_per_unit: m.cost_per_unit,
-      stock_quantity: m.stock_quantity
+      stock_quantity: m.stock_quantity,
+      gauge: m.gauge ?? ''
     })
     setShowModal(true)
   }
@@ -52,6 +100,7 @@ export default function Stock() {
       unit: form.unit,
       cost_per_unit: parseFloat(form.cost_per_unit) || 0,
       stock_quantity: parseFloat(form.stock_quantity) || 0,
+      gauge: form.type === 'alambre' && form.gauge ? parseInt(form.gauge) : null,
       updated_at: new Date().toISOString()
     }
     if (editing) {
@@ -75,6 +124,8 @@ export default function Stock() {
     const matchType = filterType === 'todos' || m.type === filterType
     return matchSearch && matchType
   })
+
+  const isWireForm = form.type === 'alambre'
 
   return (
     <div className="p-4">
@@ -118,32 +169,7 @@ export default function Stock() {
       ) : (
         <div className="space-y-2">
           {filtered.map(m => (
-            <div key={m.id} className="bg-white border border-gray-100 rounded-xl p-4">
-              <div className="flex justify-between items-start">
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-gray-800 truncate">{m.name}</div>
-                  <div className="text-xs text-gray-400 capitalize mt-0.5">{m.type} · {m.unit}</div>
-                </div>
-                <div className="text-right ml-3 shrink-0">
-                  <div className="text-sm font-semibold text-gray-800">
-                    €{parseFloat(m.cost_per_unit).toFixed(4)}<span className="text-gray-400 font-normal">/{m.unit}</span>
-                  </div>
-                  <div className={`text-xs mt-0.5 font-medium ${parseFloat(m.stock_quantity) < 5 ? 'text-orange-500' : 'text-green-500'}`}>
-                    {m.stock_quantity} {m.unit}
-                  </div>
-                </div>
-              </div>
-              <div className="flex gap-2 mt-3">
-                <button onClick={() => openEdit(m)}
-                  className="flex-1 text-xs text-rose-500 border border-rose-200 rounded-lg py-1.5 hover:bg-rose-50 transition-colors">
-                  Editar
-                </button>
-                <button onClick={() => handleDelete(m.id)}
-                  className="flex-1 text-xs text-gray-400 border border-gray-200 rounded-lg py-1.5 hover:bg-gray-50 transition-colors">
-                  Eliminar
-                </button>
-              </div>
-            </div>
+            <MaterialCard key={m.id} m={m} onEdit={openEdit} onDelete={handleDelete} />
           ))}
         </div>
       )}
@@ -159,12 +185,13 @@ export default function Stock() {
               placeholder="Ej: Hilo dorado 0.4mm"
             />
           </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs font-medium text-gray-600 block mb-1">Tipo</label>
-              <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}
+              <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value, gauge: '' })}
                 className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 bg-white">
-                {TYPES.map(t => <option key={t} value={t} className="capitalize">{t}</option>)}
+                {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
             <div>
@@ -175,9 +202,32 @@ export default function Stock() {
               </select>
             </div>
           </div>
+
+          {/* Gauge — only for alambre */}
+          {isWireForm && (
+            <div>
+              <label className="text-xs font-medium text-gray-600 block mb-1">Calibre</label>
+              <div className="flex gap-2 flex-wrap">
+                {GAUGES.map(g => (
+                  <button key={g} type="button"
+                    onClick={() => setForm({ ...form, gauge: form.gauge === g ? '' : g })}
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                      form.gauge === g
+                        ? 'bg-amber-400 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-amber-100'
+                    }`}>
+                    GA {g}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1">Costo por {form.unit} (€)</label>
+              <label className="text-xs font-medium text-gray-600 block mb-1">
+                Costo por {form.unit} (€)
+              </label>
               <input
                 type="number"
                 step="0.0001"
@@ -185,8 +235,14 @@ export default function Stock() {
                 value={form.cost_per_unit}
                 onChange={e => setForm({ ...form, cost_per_unit: e.target.value })}
                 className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200"
-                placeholder="0.00"
+                placeholder="0.0000"
               />
+              {/* Show price/metro preview for cm */}
+              {form.unit === 'cm' && form.cost_per_unit > 0 && (
+                <div className="text-xs text-rose-400 mt-1">
+                  = €{(parseFloat(form.cost_per_unit) * 100).toFixed(4)}/metro
+                </div>
+              )}
             </div>
             <div>
               <label className="text-xs font-medium text-gray-600 block mb-1">Cantidad</label>
@@ -201,6 +257,7 @@ export default function Stock() {
               />
             </div>
           </div>
+
           <button
             onClick={handleSave}
             disabled={saving || !form.name.trim()}
