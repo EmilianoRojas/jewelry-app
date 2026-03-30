@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useNavigate, useParams } from 'react-router-dom'
+import Toast, { useToast } from '../components/Toast'
 
 const DESIGN_TYPES = ['pulsera', 'collar', 'anillo', 'aretes', 'otro']
 
@@ -18,6 +19,7 @@ export default function DesignEditor() {
   const [allMaterials, setAllMaterials] = useState([])
   const [loading, setLoading] = useState(!isNew)
   const [saving, setSaving] = useState(false)
+  const { toast, show: showToast, hide: hideToast } = useToast()
   const [showAddMaterial, setShowAddMaterial] = useState(false)
   const [selectedMaterialId, setSelectedMaterialId] = useState('')
   const [selectedQty, setSelectedQty] = useState('')
@@ -105,7 +107,7 @@ export default function DesignEditor() {
     let designId = id
     if (isNew) {
       const { data, error } = await supabase.from('designs').insert(designPayload).select().single()
-      if (error) { setSaving(false); alert(error.message); return }
+      if (error) { setSaving(false); showToast(error.message, 'error'); return }
       designId = data.id
     } else {
       await supabase.from('designs').update(designPayload).eq('id', id)
@@ -123,14 +125,16 @@ export default function DesignEditor() {
     }
 
     setSaving(false)
-    navigate('/designs')
+    showToast(isNew ? 'Diseño creado ✓' : 'Diseño guardado ✓')
+    setTimeout(() => navigate('/designs'), 1200)
   }
 
   async function handleDelete() {
     if (!confirm('¿Eliminar este diseño?')) return
     await supabase.from('design_materials').delete().eq('design_id', id)
     await supabase.from('designs').delete().eq('id', id)
-    navigate('/designs')
+    showToast('Diseño eliminado')
+    setTimeout(() => navigate('/designs'), 1000)
   }
 
   const availableMaterials = allMaterials.filter(m =>
@@ -355,6 +359,8 @@ export default function DesignEditor() {
           </button>
         )}
       </div>
+
+      <Toast toast={toast} onHide={hideToast} />
     </div>
   )
 }

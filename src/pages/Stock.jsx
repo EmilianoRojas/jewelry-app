@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import Modal from '../components/Modal'
+import Toast, { useToast } from '../components/Toast'
 
 const TYPES = ['alambre', 'cuenta', 'broche', 'cadena', 'componente', 'otro']
 const UNITS = ['piezas', 'metros', 'cm', 'gramos', 'mm']
@@ -66,6 +67,7 @@ export default function Stock() {
   const [form, setForm] = useState(emptyForm)
   const [editing, setEditing] = useState(null)
   const [saving, setSaving] = useState(false)
+  const { toast, show: showToast, hide: hideToast } = useToast()
   const [search, setSearch] = useState('')
   const [filterType, setFilterType] = useState('todos')
 
@@ -120,12 +122,15 @@ export default function Stock() {
     setSaving(false)
     setShowModal(false)
     fetchMaterials()
+    showToast(editing ? 'Material actualizado ✓' : 'Material agregado ✓')
   }
 
   async function handleDelete(id) {
     if (!confirm('¿Eliminar este material? También se quitará de los diseños que lo usen.')) return
-    await supabase.from('materials').delete().eq('id', id)
+    const { error } = await supabase.from('materials').delete().eq('id', id)
     fetchMaterials()
+    if (error) showToast('Error al eliminar', 'error')
+    else showToast('Material eliminado')
   }
 
   const filtered = materials.filter(m => {
@@ -302,6 +307,8 @@ export default function Stock() {
           </button>
         </div>
       </Modal>
+
+      <Toast toast={toast} onHide={hideToast} />
     </div>
   )
 }
